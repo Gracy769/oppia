@@ -928,6 +928,29 @@ class StartCertificateAssessmentHandlerUnitTests(test_utils.GenericTestBase):
             ):
                 handler.post()
 
+    def test_post_raises_not_found_for_missing_offering(self) -> None:
+        handler = (
+            certificate_assessment.StartCertificateAssessmentHandler.__new__(
+                certificate_assessment.StartCertificateAssessmentHandler
+            )
+        )
+        handler.user_id = 'user_id_1'
+        handler.normalized_payload = {'certificate_id': 'missing_cert'}
+        with mock.patch.object(
+            certificate_assessment_services,
+            'start_certificate_assessment_attempt',
+            side_effect=(
+                certificate_assessment_services.CertificateAssessmentOfferingNotFoundException(
+                    'Certificate assessment offering missing_cert does not exist.'
+                )
+            ),
+        ):
+            with self.assertRaisesRegex(
+                handler.NotFoundException,
+                'Certificate assessment offering missing_cert does not exist.',
+            ):
+                handler.post()
+
     def test_post_raises_invalid_input_on_invalidated_offering(self) -> None:
         handler = (
             certificate_assessment.StartCertificateAssessmentHandler.__new__(

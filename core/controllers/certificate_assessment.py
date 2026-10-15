@@ -461,6 +461,10 @@ class StartCertificateAssessmentHandler(
         except utils.ValidationError as e:
             raise self.InvalidInputException(e) from e
         except (
+            certificate_assessment_services.CertificateAssessmentOfferingNotFoundException
+        ) as e:
+            raise self.NotFoundException(str(e)) from e
+        except (
             certificate_assessment_services.CertificateAssessmentAttemptNotReadyException
         ) as e:
             raise self.InvalidInputException(str(e)) from e
